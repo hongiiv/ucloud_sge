@@ -23,12 +23,15 @@ message_server.run_request("2","BIOINFORMATICS_01","yes","hongiiv@gamil.com")
 
 ## Message and Table
 table_instance
+
 displayname, userid, serviceofferingid, templateid, diskofferingid, zoneid, usageplantype, date_queued, date_runqueue, date_process_start, date_process_end, date_exception, status_code, clustername, clusteruuid, vm_tot_count, volume_list, private_address, public_address, password, virtual_machine_id
 
 table_volume
+
 displayname_volume, displayname_instance, date_queued, date_runqueue, date_process_start, date_process_end, date_exception, status_code, diskofferingid, virtual_machine_id, clustername, clusteruuid, zoneid, volume_id
 
 table_product
+
 productid, productcode, userid, clustername, status, totnodecount, nodecount, nodeinfo, volumeinfo, datecreate, datefinish, dateterminate,totvolumecount, volumecount
 
 {"serviceofferingid":"94341d94-ccd4-4dc4-9ccb-05c0c632d0b4","templateid": "40b12581-d99e-4c77-bbe2-30fcc49a7300","diskofferingid":"cc85e4dd-bfd9-4cec-aa22-cf226c1da92f","zoneid":"eceb5d65-6571-4696-875f-5a17949f3317","usageplantype":"hourly","user_name":"hongiiv","queued_date":"2012-10-28-17-18","displayname":"3c12da7d-7c4b-46d8-92a6-4d8407d67f1e", "clustername":"BIOINFORMATICS","clusteruuid":"7507d445-92fc-450a-9750-30bb2e133c39", "vm_tot_count":"1 of 2"}
