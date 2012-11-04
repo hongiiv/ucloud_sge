@@ -1,0 +1,116 @@
+import CloudStack
+import pexpect
+import time
+import os
+import json
+import boto
+from uuid import uuid4
+import thread
+from boto.sqs.message import Message
+
+REQUEST_QUEUE = 'developer'
+MAX_TRY = 10 #if failed deploy virtual machine we will try 10 times
+VISIBILITY_TIMEOUT = 3600
+KT_HOST = 'https://api.ucloudbiz.olleh.com/server/v1/client/api'
+KT_APIKEY = 'iW59r_QY7T07T-fXY7FH8IRsYbgJ6b-fV4pvCFsYkbx6ArMGFhaL4-sEz7zbpCNUA1I6ovcLIH2dTbXVp34mAA'
+KT_SECRET = 'ttteX3ygXMJBHPinj3zVOuHg1WCq3tqX014elUPkMryMhiGP3OjcBijKPkMA7N9DGCZY5RvO9aLMuOh6SfY9dQ'
+
+def launch_vm():
+   cloudstack = CloudStack.Client(KT_HOST, KT_APIKEY, KT_SECRET)
+
+   now = time.localtime()
+   now2 = "%02d-%02d-%02d" % (now.tm_mday, now.tm_hour, now.tm_min)
+   RUN_ID = str(uuid4())
+   #displayname = "%s_%s"%(RUN_ID,now2)
+   displayname = "%s"%(RUN_ID)
+
+   reservation = cloudstack.deployVirtualMachine({
+      'serviceofferingid':'94341d94-ccd4-4dc4-9ccb-05c0c632d0b4',
+      'templateid':'e24c0475-07ae-441c-acdd-e01ab5f0a732',
+      'diskofferingid':'cc85e4dd-bfd9-4cec-aa22-cf226c1da92f',
+      'zoneid':'eceb5d65-6571-4696-875f-5a17949f3317',
+      'displayname': displayname
+   })
+
+  
+   if reservation.has_key('errorcode'):
+      print 'oooooohooooo'
+      print '[launch_vm] Resquest fail but i love u: %s %s'%(reservation['errorcode'],reservation['errortext'])
+      result ='{"rescode":"2"}'
+   else:
+      jobid = reservation['jobid']
+      vmid = reservation['id']
+
+      while True:
+         asyncstatus = cloudstack.queryAsyncJobResult({
+            'jobid':jobid
+         })
+
+         if asyncstatus.has_key('errorcode'):
+            print '[launch_vm] Resquest fail but i love u: %s %s'%(asyncstatus['errorcode'],asyncstatus['errortext'])
+            time.sleep(5)
+         elif asyncstatus['jobstatus'] == 1:
+            password = asyncstatus['jobresult']['virtualmachine']['password']
+            ipaddress = asyncstatus['jobresult']['virtualmachine']['nic'][0]['ipaddress']
+            print "[launch_vm] VM was successfuly created %s %s"%(ipaddress, password)
+            result ='{"rescode":"1","ipaddress": "%s","password":"%s"}'%(ipaddress,password)
+            break
+         elif asyncstatus['jobstatus'] == 2:
+            result ='{"rescode":"2"}'
+            break
+         else:
+            print '.'
+            time.sleep(5)
+
+   print 'done'
+   return result
+
+def read_queue():
+   sqs_conn = boto.connect_sqs()
+   request_queue = sqs_conn.create_queue('developer')
+   message = request_queue.read(VISIBILITY_TIMEOUT) #3600 sec, 1 hour
+   if message is not None:
+      #data = json.loads(message.get_body())
+      data = message.get_body()
+      print "I receive the message, Will run run"
+      run(message)
+   else:
+      print "I havn't message, Give me a message :)"
+   
+def run(m):
+   try_count = 0
+   while True:
+      if try_count != MAX_TRY:
+         launch_result = launch_vm()
+         #print launch_result
+         result = json.loads(launch_result)
+         if result['rescode'] == '1':
+            sqs_conn = boto.connect_sqs()
+            request_queue = sqs_conn.create_queue(REQUEST_QUEUE)
+            request_queue.delete_message(m)
+            print "Delete message from dev queue :("
+            return 1
+            break
+         elif result['rescode'] == '2':
+            print 'job fail'
+            try_count = try_count +1
+      else:
+         print try_count
+         print "last job fail"
+         '''
+         '''
+         sqs_conn = boto.connect_sqs()
+         request_queue = sqs_conn.create_queue(REQUEST_QUEUE)
+         request_queue.delete_message(m)
+         new_m = Message()
+         new_m.set_body('new')
+         status = request_queue.write(new_m)
+         print "Re-insert queue message (fail) :(" 
+         return 2
+         break
+
+#if __name__ == "__main__":
+while True:
+   thread.start_new_thread(read_queue,())
+   print "I will read a queue"
+   time.sleep(5)
