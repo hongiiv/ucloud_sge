@@ -16,8 +16,8 @@ echo "export SGE_ROOT="/opt/sge"" >> /root/.bashrc
 echo "export SGE_CELL="default"" >> /root/.bashrc
 echo "export DRMAA_LIBRARY_PATH=/opt/sge/lib/linux-x64/libdrmaa.so.1.0" >> /root/.bashrc
 
-wget ftp://172.27.121.128/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.hosts -O /tmp/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.hosts
-/bin/cat /tmp/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.hosts >> /etc/hosts
+wget ftp://172.27.121.128/335464fc-9e56-4c3c-8db6-309ac4d90ca6.hosts -O /tmp/335464fc-9e56-4c3c-8db6-309ac4d90ca6.hosts
+/bin/cat /tmp/335464fc-9e56-4c3c-8db6-309ac4d90ca6.hosts >> /etc/hosts
 /usr/sbin/useradd sgeadmin
 
 #creating file system
@@ -40,6 +40,7 @@ apt-get install git -y
 apt-get install unzip -y
 apt-get install mercurial -y
 apt-get install csh -y
+apt-get install chkconfig -y
 cd /root
 git clone https://github.com/boto/boto
 cd boto
@@ -48,14 +49,18 @@ cd boto
 mkdir -p /BIO
 mkdir -p /opt/sge
 
-/bin/mount -t nfs -o nolock 172.27.119.79:/BIO /BIO
-/bin/mount -t nfs -o nolock 172.27.119.79:/opt/sge /opt/sge
+/bin/mount -t nfs -o nolock 172.27.122.57:/BIO /BIO
+/bin/mount -t nfs -o nolock 172.27.122.57:/opt/sge /opt/sge
 
 cd /opt/sge
-./inst_sge -x -auto /opt/sge/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.config
+./inst_sge -x -auto /opt/sge/335464fc-9e56-4c3c-8db6-309ac4d90ca6.config
 
-echo "172.27.119.79:/BIO	/BIO	nfs	timeo=14,intr" >> /etc/fstab
-echo "172.27.119.79:/opt/sge	/opt/sge	nfs	timeo=14,intr" >> /etc/fstab
+echo "335464fc-9e56-4c3c-8db6-309ac4d90ca6:/BIO	/BIO	nfs	timeo=14,intr" >> /etc/fstab
+echo "172.27.122.57:/opt/sge	/opt/sge	nfs	timeo=14,intr" >> /etc/fstab
+
+#sge init & ssh key stop
+/sbin/chkconfig -add sgeexecd.bioinformatics_172.27.122.57
+/sbin/chkconfig --del cloud-set-guest-sshkey.in
 
 #sending message via AWS SNS
 echo "[Credentials]" > /root/.boto

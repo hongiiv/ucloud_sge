@@ -16,20 +16,20 @@ echo "export SGE_ROOT="/opt/sge"" >> /root/.bashrc
 echo "export SGE_CELL="default"" >> /root/.bashrc
 echo "export DRMAA_LIBRARY_PATH=/opt/sge/lib/linux-x64/libdrmaa.so.1.0" >> /root/.bashrc
 
-/usr/bin/wget ftp://172.27.121.128/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.config -O /tmp/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.config
-/usr/bin/wget ftp://172.27.121.128/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.hosts -O /tmp/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.hosts
+/usr/bin/wget ftp://172.27.121.128/335464fc-9e56-4c3c-8db6-309ac4d90ca6.config -O /tmp/335464fc-9e56-4c3c-8db6-309ac4d90ca6.config
+/usr/bin/wget ftp://172.27.121.128/335464fc-9e56-4c3c-8db6-309ac4d90ca6.hosts -O /tmp/335464fc-9e56-4c3c-8db6-309ac4d90ca6.hosts
 
-/bin/cat /tmp/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.hosts >> /etc/hosts
+/bin/cat /tmp/335464fc-9e56-4c3c-8db6-309ac4d90ca6.hosts >> /etc/hosts
 
 /usr/bin/wget ftp://172.27.121.128/sge.tar.gz -O /opt/sge.tar.gz
 cd /opt
 /bin/tar xvfz /opt/sge.tar.gz 
-/bin/cp /tmp/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.config /opt/sge
+/bin/cp /tmp/335464fc-9e56-4c3c-8db6-309ac4d90ca6.config /opt/sge
 /usr/sbin/useradd sgeadmin
 /bin/chown -R sgeadmin:sgeadmin /opt/sge
 /bin/chown -R sgeadmin:sgeadmin /opt/sge/*
 cd /opt/sge
-./inst_sge -m -x -auto /opt/sge/a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af.config
+./inst_sge -m -x -auto /opt/sge/335464fc-9e56-4c3c-8db6-309ac4d90ca6.config
 /bin/chown -R sgeadmin:sgeadmin /opt/sge
 /bin/chown -R sgeadmin:sgeadmin /opt/sge/*
 
@@ -39,6 +39,8 @@ apt-get install git -y
 apt-get install unzip -y
 apt-get install mercurial -y
 apt-get install csh -y
+apt-get install chkconfig -y
+apt-get install postgresql -y
 cd /root
 /usr/bin/git clone https://github.com/boto/boto
 cd boto
@@ -69,7 +71,17 @@ cd /BIO
 /usr/bin/hg clone https://bitbucket.org/galaxy/galaxy-central
 cd /BIO/galaxy-central
 wget ftp://172.27.121.128/universe_wsgi.ini -O /BIO/galaxy-central/universe_wsgi.ini
-/bin/sh run.sh &
+#/bin/sh run.sh &
+
+wget ftp://172.27.121.128/galaxy -O /etc/init.d/galaxy
+/bin/chmod 755 /etc/init.d/galaxy
+/sbin/chkconfig -add galaxy
+/etc/init.d/galaxy start
+
+#sge init & ssh key stop 
+/sbin/chkconfig -add sgeexecd.bioinformatics_335464fc-9e56-4c3c-8db6-309ac4d90ca6
+/sbin/chkconfig -add sgemaster.bioinformatics_335464fc-9e56-4c3c-8db6-309ac4d90ca6 
+/sbin/chkconfig --del cloud-set-guest-sshkey.in
 
 #sending message via AWS SNS
 echo "[Credentials]" > /root/.boto
@@ -85,14 +97,14 @@ mytopics = topics["ListTopicsResponse"]["ListTopicsResult"]["Topics"]
 mytopic_arn = mytopics[0]["TopicArn"]
 subscriptions = sns.get_all_subscriptions_by_topic(mytopic_arn)
 msg = "Hi there. I am sending this message over boto. Bye my bf"
-msg = msg + " Master IP: 172.27.119.79 / PW: dE8udpwti"
-subj="[a33ea5db-ec81-40ac-a5ad-1ab9a39cd1af] AWS Message Services - Master Node"
+msg = msg + " Master IP: 172.27.122.57 / PW: yA6tamnuj"
+subj="[335464fc-9e56-4c3c-8db6-309ac4d90ca6] AWS Message Services - Master Node"
 res=sns.publish(mytopic_arn,msg,subj)
 EOF
 
 echo "deploy product from script" >> /tmp/deploy_result.txt
-echo "master ip: 172.27.119.79" >> /tmp/deploy_result.txt
-echo "slave ip: dE8udpwti" >> /tmp/deploy_result.txt
+echo "master ip: 172.27.122.57" >> /tmp/deploy_result.txt
+echo "slave ip: yA6tamnuj" >> /tmp/deploy_result.txt
 
 /bin/rm /etc/init.d/userdata
 
