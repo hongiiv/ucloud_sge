@@ -93,31 +93,29 @@ def select_db():
       cursor = db.cursor()
       try:
          cursor.execute("select * from table_instance")
-         print "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+         print "----------------------------------------------------------------------"
          print "Displayname\tUser\tServiceID\tTemplate\tDisk\tzone\tusage\tqueued\trunqueue\tprocess_start\tprocess_end\texcep\tcode\tculstername\tclusteruuid\tvmtotalcounti\taddress\tpw\tvmid"
-         print "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+         print "----------------------------------------------------------------------"
          for row in cursor:
             print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"%(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[17],row[19], row[20])
          cursor.close()
          db.commit()
 
-
          cursor = db.cursor()
          cursor.execute("select * from table_volume")
-         print "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+         print "----------------------------------------------------------------------"
          print "volumename\tinstancename\tqueued\trunqueue\tprocess_start\tprocess_end\texcept\tcode\tdiskofferingid\tvm_id\tclustername\tclusteruuid\tzoneid\tvolumeid"
-         print "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+         print "----------------------------------------------------------------------"
          for row in cursor:
             print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"%(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13])
          cursor.close()
          db.commit()
 
-
          cursor = db.cursor()
          cursor.execute("select * from table_product")
-         print "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+         print "----------------------------------------------------------------------"
          print "productid\tproductcode\tuserid\tclustername\tstatus\ttotnodecount\tnodecount\tnodeinfo\tvolumeinfo\tdatecreate\tdatefinish\tdateterminate\ttotalvol\tvolcount"
-         print "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+         print "----------------------------------------------------------------------"
          for row in cursor:
             print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"%(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13])
          cursor.close()
@@ -161,18 +159,19 @@ def insert_message_volume(displayname_volume, displayname_instance, nowdate, clu
       return 2
    
 def run_request(node_count, cluster_name, autoscale, user_account):
-   ##master_serviceofferingid = '94341d94-ccd4-4dc4-9ccb-05c0c632d0b4' #CPU, Memory
-   ##slave_serviceofferingid = '94341d94-ccd4-4dc4-9ccb-05c0c632d0b4' #CPU, Memory
+   #master_serviceofferingid = '94341d94-ccd4-4dc4-9ccb-05c0c632d0b4' #CPU, Memory
+   #slave_serviceofferingid = '94341d94-ccd4-4dc4-9ccb-05c0c632d0b4' #CPU, Memory
    master_serviceofferingid = 'c504e367-20d6-47c6-a82c-183b12d357f2'
    slave_serviceofferingid = 'c504e367-20d6-47c6-a82c-183b12d357f2'
    #master_templateid = 'e24c0475-07ae-441c-acdd-e01ab5f0a732'
    #slave_templateid = 'e24c0475-07ae-441c-acdd-e01ab5f0a732'
-   master_templateid = '40b12581-d99e-4c77-bbe2-30fcc49a7300'
-   slave_templateid = '40b12581-d99e-4c77-bbe2-30fcc49a7300'
+   master_templateid = '10baa5f8-a790-4f37-b9e6-b18453fda37b'
+   slave_templateid = '10baa5f8-a790-4f37-b9e6-b18453fda37b'
    diskofferingid = 'cc85e4dd-bfd9-4cec-aa22-cf226c1da92f'
+   #diskofferingid = '277d1cea-d51a-4570-af16-0b271795d2a0'
    zoneid = 'eceb5d65-6571-4696-875f-5a17949f3317'
    usageplantype = 'hourly'
-   user_account = 'hongiiv'
+   user_account = user_account
    now = time.localtime()
    now_date = "%02d-%02d-%02d-%02d-%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min)
    vm_counts = "2"
@@ -185,7 +184,8 @@ def run_request(node_count, cluster_name, autoscale, user_account):
 
    for j in range(node_count):
       displayname_instance = str(uuid4())
-      vm_tot_count = '%d of %d'%(j+1, node_count)
+      #vm_tot_count = '%d of %d'%(j+1, node_count)
+      vm_tot_count = '%d'%(j+1)
       if j == 1: #master node
          result_instance = insert_message_instance(master_serviceofferingid, master_templateid, diskofferingid, zoneid, usageplantype, user_account, vm_tot_count, displayname_instance, now_date, cluster_name, cluster_uuid)
          #total 5 volume in master node
