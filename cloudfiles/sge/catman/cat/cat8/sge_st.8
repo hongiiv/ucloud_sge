@@ -1,0 +1,105 @@
+SGE_ST(8)             Grid Engine Administrative Commands            SGE_ST(8)
+
+
+
+NNAAMMEE
+       util/sgeST/sge_st - Grid Engine Service Tags Support control command
+
+SSYYNNOOPPSSIISS
+       ssggee__sstt  eennaabbllee  ||  ddiissaabbllee  || rreeggiisstteerr || uunnrreeggiisstteerr || cchheecckk || eennaabblleedd ||
+       ssuuppppoorrtteedd || hheellpp
+
+DDEESSCCRRIIPPTTIIOONN
+       _s_g_e___s_t controls the Grid Engine support for Service  Tags.   A  Service
+       Tag support improve the monitoring of usages of the Grid Engine.
+
+OOPPTTIIOONNSS
+       eennaabbllee Enables  the  Service Tags support for Grid Engine.  If the Ser-
+              vice Tags packages are installed on the host,  the  presence  of
+              the  product  instance  service tag is checked in every start of
+              the qmaster daemon.
+
+
+       ddiissaabbllee
+              Disables the Service Tags support for Grid Engine.
+
+
+       rreeggiisstteerr
+              Create the product instance service tag.
+
+
+       uunnrreeggiisstteerr
+              Remove the product instance service tag.
+
+
+       cchheecckk  Checks the status of the product instance service  tag.  If  not
+              registered,  the  option returns "unregistered".  If registered,
+              the option returns "registered:<product_instance_urn>"
+
+
+       eennaabblleedd
+              Check the status of the service tags  support.  If  the  service
+              tags  are  enabled  by  Grid  Engine  administrator,  the option
+              returns "true", otherwise "false".
+
+
+       ssuuppppoorrtteedd
+              Checks if the Service Tags are  supported  on  this  host.  This
+              option  validates  the  presence of the Service Tags packages on
+              the host and checks if they are correctly installed. If  Service
+              Tags  are  supported  on  this  host,  the  option return a word
+              "true", otherwise "false".
+
+
+TThhee SSeerrvviiccee TTaaggss SSuuppppoorrtt
+       Service Tags enables automatic discovery of systems, software and  ser-
+       vices.  A service tag uniquely identifies each tagged asset, and allows
+       the asset information to be shared over a local network in  a  standard
+       XML format.
+
+       The  Grid Engine can create a service tag for one cluster installation.
+       A service tag entry is stored in the Service Tag registry.   Each  ser-
+       vice  tag has an unique instance identifier which is generated when the
+       record is added to the registry.  This identifier is used  as  the  key
+       when accessing the record.
+
+       The  discoverer  and  listener services installed together with Service
+       Tags on a host. They provide a way to discover a service tags  via  the
+       network. The discoverer is a UDP-based application which exists to pro-
+       vide information about the  listener.   The  listener  is  a  TCP-based
+       application  which  provides a way to gather service tag and associated
+       environmental information.
+
+       The discoverer service is used by operating system upgrade or  register
+       tools to send the service tags data to SUN.  There is no other way, how
+       to propagate the collected data to SUN than  through  the  registration
+       tool.  The  data  to be send can be inspected and accepted. The Service
+       Tags Data is going to be analyzed.
+
+EENNVVIIRROONNMMEENNTTAALL VVAARRIIAABBLLEESS
+       SSGGEE__RROOOOTT       Specifies the location of the Grid Engine standard  con-
+                      figuration files.
+
+       SSGGEE__CCEELLLL       If  set,  specifies  the  default  Grid  Engine cell. To
+                      address a Grid Engine cell
+
+RREESSTTRRIICCTTIIOONNSS
+       _s_g_e___s_t The command must be called with Grid Engine admin rights or root
+       permissions.
+
+FFIILLEESS
+       ssggee__sstt  ccrreeaatteess  aa  sstt..eennaabblleedd  ffiillee  iinn  SSGGEE__CCEELLLL\\ccoommmmoonn ddiirreeccttoorryy.. IIff
+       aavvaaiillaabbllee,, tthhee ffiillee ccoonnttaaiinnss tthhee pprroodduucctt rreellaatteedd uurrnn kkeeyy.. TThhiiss kkeeyy wwiillll
+       bbee uusseedd ffoorr uuppggrraaddiinngg ppuurrppoosseess..
+       _<_s_g_e___r_o_o_t_>_/_<_c_e_l_l_>_/_c_o_m_m_o_n_/_s_t_._e_n_a_b_l_e_d
+                       GGrriidd EEnnggiinnee SSeerrvviiccee TTaaggss SSuuppppoorrtt eennaabblliinngg iinnddiiccaattoorr
+
+SSEEEE AALLSSOO
+       _s_g_e___q_m_a_s_t_e_r(8).
+
+CCOOPPYYRRIIGGHHTT
+       See _s_g_e___i_n_t_r_o(1) for a full statement of rights and permissions.
+
+
+
+OGS/Grid Engine 2011.11  $Date: 2007/10/30 16:54:07 $                SGE_ST(8)

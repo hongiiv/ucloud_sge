@@ -1,0 +1,53 @@
+SGE_Helper_Service.exe(G8r)id Engine Administrative CommaSnGdEs_Helper_Service.exe(8)
+
+
+
+NNAAMMEE
+       SGE_Helper_Service.exe - Grid Engine job execution agent helper service
+
+SSYYNNOOPPSSIISS
+       SSGGEE__HHeellppeerr__SSeerrvviiccee..eexxee [ --hheellpp | --iinnssttaallll | --uunniinnssttaallll ]
+
+DDEESSCCRRIIPPTTIIOONN
+       _S_G_E___H_e_l_p_e_r___S_e_r_v_i_c_e_._e_x_e _h_e_l_p_s _t_h_e _s_g_e___e_x_e_c_d(8) to run Windows jobs  that
+       request  to  be allowed to display their GUI on the visible Desktop. It
+       is a Win32 service that is  started  at  boot  time  under  the  SYSTEM
+       account,  giving it the permissions to give any process the permissions
+       to access the visible Desktop.
+       This service runs independently of the _s_g_e___e_x_e_c_d(8)  (i.e.  it  is  not
+       started  and  stopped together with the execution daemon) and there can
+       be only one SGE_Helper_Service.exe per host.
+       Jobs can request to be allowed to display  their  GUI  on  the  visible
+       desktop  by  requesting  the  resource  "display_win_gui" (qsub -l dis-
+       play_win_gui=1). See _s_u_b_m_i_t(1) , option "-v", for information on how to
+       set a job environment variable.
+       When running GUI jobs, the environment variable SGE_BACKGND_MODE can be
+       used to direct where the output of the GUI will be  displayed.  If  the
+       environment  variable  SGE_BACKGND_MODE is set to "TRUE" or "1" and "-l
+       display_win_gui=true" is requested, the job is started  by  the  helper
+       service,  but  the  GUI  is  not opened on the execution host's screen.
+       Instead it is opened on a virtual screen.
+
+OOPPTTIIOONNSS
+   --hheellpp
+       Prints a listing of all options.
+
+   --iinnssttaallll
+       Installs the service. Only the local Administrator has the  permissions
+       to install the service.
+
+   --uunniinnssttaallll
+       Uninstalls  the  service.  Only the local Administrator has the permis-
+       sions to uninstall the service. Only a stopped  service  can  be  unin-
+       stalled. See the Windows command net.exe for information on how to stop
+       a service.
+
+SSEEEE AALLSSOO
+       _s_g_e___i_n_t_r_o(1), _s_g_e___e_x_e_c_d(8).
+
+CCOOPPYYRRIIGGHHTT
+       See _s_g_e___i_n_t_r_o(1) for a full statement of rights and permissions.
+
+
+
+OGS/Grid Engine 2011.11  $Date: 2008/10/08 19:52:37 $SGE_Helper_Service.exe(8)
