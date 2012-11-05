@@ -144,9 +144,7 @@ echo "export DRMAA_LIBRARY_PATH=/opt/sge/lib/linux-x64/libdrmaa.so.1.0" >> /root
 
 /usr/bin/wget ftp://172.27.121.128/%s -O /tmp/%s
 /usr/bin/wget ftp://172.27.121.128/%s -O /tmp/%s
-
 /bin/cat /tmp/%s >> /etc/hosts
-
 /usr/bin/wget ftp://172.27.121.128/sge.tar.gz -O /opt/sge.tar.gz
 cd /opt
 /bin/tar xvfz /opt/sge.tar.gz 
@@ -166,13 +164,16 @@ apt-get install unzip -y
 apt-get install mercurial -y
 apt-get install csh -y
 apt-get install chkconfig -y
-apt-get install postgresql -y
+#apt-get install postgresql -y
+apt-get install nfs-kernel-server nfs-common portmap -y
+
 cd /root
 /usr/bin/git clone https://github.com/boto/boto
 cd boto
 /usr/bin/python setup.py install
 
 /bin/mkdir -p /BIO
+
 #/sbin/mdadm --create --verbose /dev/md0 --level=0 --raid-devices=6 /dev/xvdb /dev/xvdc /dev/xvde /dev/xvdf /dev/xvdg /dev/xvdh
 #echo "n" >> swap.in
 #echo "p" >> swap.in
@@ -185,7 +186,6 @@ cd boto
 #echo "/dev/md0     /BIO     ext3     defaults     0 0" >> /etc/fstab
 #mount -a
 
-apt-get install nfs-kernel-server nfs-common portmap -y
 echo "/BIO *(rw,no_root_squash,no_all_squash,async,no_subtree_check)" >> /etc/exports 
 echo "/opt/sge *(rw,no_root_squash,no_all_squash,async,no_subtree_check)" >> /etc/exports
 
@@ -197,8 +197,6 @@ cd /BIO
 /usr/bin/hg clone https://bitbucket.org/galaxy/galaxy-central
 cd /BIO/galaxy-central
 wget ftp://172.27.121.128/universe_wsgi.ini -O /BIO/galaxy-central/universe_wsgi.ini
-#/bin/sh run.sh &
-
 wget ftp://172.27.121.128/galaxy -O /etc/init.d/galaxy
 /bin/chmod 755 /etc/init.d/galaxy
 /sbin/chkconfig -add galaxy
@@ -373,16 +371,10 @@ EOF
       log.debug("Deploy job fail: mv fail :(")
 
 def deploy_run(clusteruuid):
-   result1 = attach_volume(clusteruuid)
-   result2 = build_script_master(clusteruuid)
-   result3 = build_script_slave(clusteruuid)
-   return result1
-   """
-   preprocessing()
-   processing()
-   finalprocessing()
-   return "1"
-   """
+   result_volume = attach_volume(clusteruuid)
+   result_master = build_script_master(clusteruuid)
+   result_slave = build_script_slave(clusteruuid)
+   return result_volume
 
 def attach_volume(clusteruuid):
    #find master node from instance_table 
@@ -406,12 +398,12 @@ def attach_volume(clusteruuid):
       db = sqlite3.connect(SQLITE_ADMIN, timeout=1)
       cursor = db.cursor()
       SQL = "select volume_id from table_volume where clusteruuid='%s'"%(clusteruuid)
-      print SQL
+      log.debug(SQL)
       cursor.execute(SQL)
       for row in cursor:
         volume_list.append(row[0])
+      log.debug("Volume list are: %s"%(volume_list))
       log.debug("Selected volume lists for cluster: %s"%(clusteruuid))
-      print volume_list
       cursor.close()
       db.commit()
       db.close()
@@ -441,15 +433,4 @@ def attach_volume(clusteruuid):
          else:
             time.sleep(5)
 
-   #build_script(clusteruuid)
-   
    return result
-
-def preprocessing():
-   return "1"
-
-def processing():
-   return "1"
-
-def finalprocessing():
-   return "1"

@@ -293,6 +293,7 @@ def run(message):
          break
 
 #if __name__ == "__main__":
-while True:
-   thread.start_new_thread(read_queue,())
+def main():
+   while True:
+      thread.start_new_thread(read_queue,())
    time.sleep(10)

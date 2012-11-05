@@ -3,11 +3,31 @@ import boto
 from boto.sqs.message import Message
 from uuid import uuid4
 import sqlite3
+import logging
 
 INSTANCE_QUEUE = 'instance_queue'
 VOLUME_QUEUE = 'volume_queue'
 #Database name & instance/volume table
 SQLITE_ADMIN = 'genome_admin'
+
+log = logging.getLogger('bioinformatics')
+log.setLevel(logging.DEBUG)
+logging.basicConfig(format='[%(asctime)s] %(message)s')
+logging.warning('is when this event was logged.')
+
+def update_db(productid, totnodecount):
+  try:
+      db = sqlite3.connect(SQLITE_ADMIN)
+      cursor = db.cursor()
+      SQL = "update table_product set totnodecount='%s' where productid='%s'"%(str(totnodecount), productid)
+      log.debug(SQL)
+      cursor.execute(SQL)
+      cursor.close()
+      db.commit()
+      db.close()
+  except sqlite3.OperationalError:
+      log.debug("Connot connect database")
+   
 
 def delete_db():
    while(1):
