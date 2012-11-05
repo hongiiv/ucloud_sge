@@ -212,6 +212,8 @@ echo "[Credentials]" > /root/.boto
 echo "aws_access_key_id = AKIAJ5AR6DNAQZNL3FLQ" >> /root/.boto
 echo "aws_secret_access_key = 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" >> /root/.boto
 
+/usr/bin/wget ftp://172.27.121.128/sleeper.sh -O /BIO/sleeper.sh
+
 python <<EOF
 import os
 import boto
@@ -423,6 +425,8 @@ echo "[Credentials]" > /root/.boto
 echo "aws_access_key_id = AKIAJ5AR6DNAQZNL3FLQ" >> /root/.boto
 echo "aws_secret_access_key = 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" >> /root/.boto
 
+/usr/bin/wget ftp://172.27.121.128/sleeper.sh -O /BIO/sleeper.sh
+
 python <<EOF
 import os
 import boto
@@ -438,7 +442,7 @@ EOF
 
 /bin/rm /etc/init.d/userdata
 
-   '''%(productid, productid, productid, master_private_address, master_private_address, productid, productid, master_private_address, master_private_address)
+   '''%(productid, productid, productid, master_private_address, master_private_address, productid, master_private_address, master_private_address, master_private_address)
 
    script_name = ("%s_slave.sh")%(productid)
    f = file(script_name,"w")
@@ -509,7 +513,8 @@ def attach_volume(clusteruuid):
          elif asyncstatus['jobstatus'] == 2:
             log.debug("Volume attach [%d] fail :( %s: %s"%(i, volume_list[i], virtual_machine_id))
             result = "2"
-            break
+            time.sleep(3)
+            #break
          else:
             time.sleep(5)
 
