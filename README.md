@@ -14,7 +14,7 @@ $ git clone --recursive git://github.com/hongiiv/ucloud_sge.git
 
 ```python
 #!/usr/bin/python
-mport message_server
+import message_server
 message_server.delete_db()
 message_server.create_db()
 message_server.select_db()
