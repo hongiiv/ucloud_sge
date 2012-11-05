@@ -1,5 +1,4 @@
 import CloudStack
-import thread
 import pexpect
 import time
 import os
@@ -271,7 +270,7 @@ def read_queue():
    if message is not None:
       log.debug("Get Message from SQS: %s"%(message.get_body()))
       run(message)
-   #log.debug(':(((((((((')
+   log.debu(':(((((((((')
    
 def run(message):
    try_count = 0
@@ -295,6 +294,7 @@ def run(message):
          break
 
 #if __name__ == "__main__":
-while True:
-   thread.start_new_thread(read_queue,())
-   time.sleep(10)
+#def main():
+#   while True:
+#      thread.start_new_thread(read_queue,())
+#   time.sleep(10)
