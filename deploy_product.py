@@ -19,13 +19,14 @@ local_pwd = "/autoscale/client"
 deploy_server_ip = "172.27.121.128"
 deploy_server_port = "22"
 
-def build_script_master(productid):
+def build_hosts(productid):
    try:
       slave_host_name = []
       slave_private_address = []
       master_private_address = ''
       master_password = ''
       master_host_name = ''
+      slave_alias = []
 
       db = sqlite3.connect(SQLITE_ADMIN)
       cursor = db.cursor()
@@ -41,6 +42,8 @@ def build_script_master(productid):
          else:
             slave_host_name.append(row[0])
             slave_private_address.append(row[2])
+            hostalias = 'node0'+str((int(row[4])-1))
+            slave_alias.append(hostalias)
       cursor.close()
       db.commit()
       db.close()
@@ -52,7 +55,7 @@ def build_script_master(productid):
    sge_admin_host_list = "%s"%(master_host_name)
    for j in range(len(slave_private_address)):
       now_host = '''
-%s	%s	node0%s'''%(slave_private_address[j], slave_host_name[j],j+1)
+%s	%s	%s'''%(slave_private_address[j], slave_host_name[j], slave_alias[j])
       hosts_file = hosts_file + now_host
       sge_admin_host_list = sge_admin_host_list + " %s"%(slave_host_name[j])
    sge_host_file = "%s.hosts"%(productid)
@@ -67,6 +70,7 @@ def build_script_master(productid):
    if not command_external == 0:
       log.debug("Deploy job fail: mv fail :(")
 
+def build_script_master(productid):
    #sge config file for sge script
    sge_config ='''SGE_ROOT="/opt/sge"
 SGE_QMASTER_PORT="6444"
@@ -469,12 +473,14 @@ EOF
 
 def deploy_run(clusteruuid):
    result_volume = attach_volume(clusteruuid)
+   result_hosts = build_hosts(clusteruuid)
    result_master = build_script_master(clusteruuid)
    result_slave = build_script_slave(clusteruuid)
    return result_volume
 
 def deploy_run_autoscale(clusteruuid):
    result_slave = build_script_slave(clusteruuid)
+   result_hosts = build_script_hosts(clusteruuid)
    return result_slave
 
 def attach_volume(clusteruuid):
