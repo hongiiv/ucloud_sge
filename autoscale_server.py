@@ -68,7 +68,7 @@ def read_queue():
 
          message_server.insert_db_instance(displayname, row[1], message_dict['serviceofferingid'], message_dict['templateid'], message_dict['diskofferingid'], message_dict['zoneid'], message_dict['usageplantype'], message_dict['queued_date'], message_dict['clustername'], message_dict['clusteruuid'], message_dict['vm_tot_count'])
          message_server.update_db(message_dict['clusteruuid'], message_dict['vm_tot_count'])
-         instance.run(m)
+         instance.run(message, m)
 
          cursor.close()
          db.commit()
