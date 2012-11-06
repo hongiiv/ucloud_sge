@@ -213,6 +213,8 @@ echo "aws_access_key_id = AKIAJ5AR6DNAQZNL3FLQ" >> /root/.boto
 echo "aws_secret_access_key = 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" >> /root/.boto
 
 /usr/bin/wget ftp://172.27.121.128/sleeper.sh -O /BIO/sleeper.sh
+/usr/bin/wget ftp://172.27.121.128/%s_autoscale_client.py -O /tmp/%s_autoscale_client.py
+/usr/bin/python /tmp/%s_autoscale_client.py &
 
 python <<EOF
 import os
@@ -233,8 +235,10 @@ echo "master ip: %s" >> /tmp/deploy_result.txt
 echo "master pw: %s" >> /tmp/deploy_result.txt
 
 /bin/rm /etc/init.d/userdata
+'''%(sge_config_file, sge_config_file, sge_host_file, sge_host_file, sge_host_file, sge_config_file, sge_config_file, productid, productid, productid, productid, productid, master_private_address, master_password, productid, master_private_address, master_password)
 
-python <<EOF
+   autoscale_client = '''
+#!/usr/bin/python
 import sys
 import os
 import subprocess
@@ -242,13 +246,12 @@ import datetime
 import re
 import time
 from xml.etree import ElementTree
-import client_side
 import logging
 import boto
 from boto.sqs.message import Message
 
 AUTOSCALE_QUEUE = 'autoscale_queue'
-cluster_uuid = %s
+cluster_uuid = '%s'
 
 log = logging.getLogger('bioinformatics')
 log.setLevel(logging.DEBUG)
@@ -313,8 +316,18 @@ if __name__ == "__main__":
     while True:
         main()
         time.sleep(2)
-EOF
-   '''%(sge_config_file, sge_config_file, sge_host_file, sge_host_file, sge_host_file, sge_config_file, sge_config_file, productid, productid, master_private_address, master_password, productid, master_private_address, master_password, productid)
+
+   '''%(productid)
+
+   script_name = ("%s_autoscale_client.py")%(productid)
+   f = file(script_name,"w")
+   f.write(autoscale_client)
+   f.close()
+   command = "/bin/mv %s/%s /cloudfiles/%s"%(local_pwd, script_name, script_name)
+   log.debug("Deploy your cluster computer: %s"%(command))
+   command_external = os.system(command)
+   if not command_external == 0:
+      log.debug("Deploy job fail: mv fail :(")
 
    script_name = ("%s_master.sh")%(productid)
    f = file(script_name,"w")
@@ -459,6 +472,10 @@ def deploy_run(clusteruuid):
    result_master = build_script_master(clusteruuid)
    result_slave = build_script_slave(clusteruuid)
    return result_volume
+
+def deploy_run_autoscale(clusteruuid):
+   result_slave = build_script_slave(clusteruuid)
+   return result_slave
 
 def attach_volume(clusteruuid):
    #find master node from instance_table 

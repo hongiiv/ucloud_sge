@@ -98,7 +98,8 @@ def update_db_product(productid):
 
    if status == "1":
       log.debug("Starting deploy product: %s"%(product_id))
-      deploy_result = deploy_product.deploy_run(product_id)
+      #deploy_result = deploy_product.deploy_run(product_id)
+      deploy_result = deploy_product.deploy_run_autoscale(product_id)
       if deploy_result == "1":
          log.debug("Disk attach success: %s"%(product_id))
       else:
@@ -292,9 +293,3 @@ def run(message):
          log.debug("This message total %d try but fail, message will be back"%(try_count))
          return 2
          break
-
-#if __name__ == "__main__":
-#def main():
-#   while True:
-#      thread.start_new_thread(read_queue,())
-#   time.sleep(10)
