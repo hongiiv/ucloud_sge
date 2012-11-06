@@ -19,12 +19,18 @@ local_pwd = "/autoscale/client"
 deploy_server_ip = "172.27.121.128"
 deploy_server_port = "22"
 
+master_private_address = ''
+master_password = ''
+slave_host_name = []
+slave_private_address = []
+sge_admin_host_list = ''
+master_host_name = ''
+
 def build_hosts(productid):
    try:
       slave_host_name = []
       slave_private_address = []
-      master_private_address = ''
-      master_password = ''
+      sge_admin_host_list = ''
       master_host_name = ''
       slave_alias = []
 
@@ -50,6 +56,8 @@ def build_hosts(productid):
    except sqlite3.OperationalError:
       log.debug("Cannot connect database")
 
+   log.debug(master_private_address)
+   log.debug(master_password)
    #hosts file for sge script
    hosts_file = "%s	%s	master"%(master_private_address, master_host_name)
    sge_admin_host_list = "%s"%(master_host_name)
@@ -70,7 +78,17 @@ def build_hosts(productid):
    if not command_external == 0:
       log.debug("Deploy job fail: mv fail :(")
 
-def build_script_master(productid):
+   log.debug(sge_admin_host_list)
+
+   host_info = {
+      'sge_admin_host_list':sge_admin_host_list,
+      'master_private_address':master_private_address,
+      'master_password':master_password,
+   }
+   return host_info
+
+def build_script_master(productid, sge_admin_host_list, master_private_address, master_password):
+   sge_host_file = "%s.hosts"%(productid)
    #sge config file for sge script
    sge_config ='''SGE_ROOT="/opt/sge"
 SGE_QMASTER_PORT="6444"
@@ -194,7 +212,7 @@ echo "/BIO *(rw,no_root_squash,no_all_squash,async,no_subtree_check)" >> /etc/ex
 echo "/opt/sge *(rw,no_root_squash,no_all_squash,async,no_subtree_check)" >> /etc/exports
 
 #/usr/sbin/service portmap restart
-#/etc/init.d/nfs-kernel-server restart
+/etc/init.d/nfs-kernel-server restart
 
 #install galaxy
 cd /BIO
@@ -205,11 +223,6 @@ wget ftp://172.27.121.128/galaxy -O /etc/init.d/galaxy
 /bin/chmod 755 /etc/init.d/galaxy
 /sbin/chkconfig -add galaxy
 /etc/init.d/galaxy start
-
-#sge init & ssh key stop 
-/sbin/chkconfig -add sgeexecd.bioinformatics_%s
-/sbin/chkconfig -add sgemaster.bioinformatics_%s 
-/sbin/chkconfig --del cloud-set-guest-sshkey.in
 
 #sending message via AWS SNS
 echo "[Credentials]" > /root/.boto
@@ -238,8 +251,13 @@ echo "deploy product from script" >> /tmp/deploy_result.txt
 echo "master ip: %s" >> /tmp/deploy_result.txt
 echo "master pw: %s" >> /tmp/deploy_result.txt
 
+#sge init & ssh key stop
+/sbin/chkconfig -add sgeexecd.bioinformatics_%s
+/sbin/chkconfig -add sgemaster.bioinformatics_%s
+/sbin/chkconfig --del cloud-set-guest-sshkey.in
+
 /bin/rm /etc/init.d/userdata
-'''%(sge_config_file, sge_config_file, sge_host_file, sge_host_file, sge_host_file, sge_config_file, sge_config_file, productid, productid, productid, productid, productid, master_private_address, master_password, productid, master_private_address, master_password)
+'''%(sge_config_file, sge_config_file, sge_host_file, sge_host_file, sge_host_file, sge_config_file, sge_config_file, productid, productid, productid, master_private_address, master_password, productid, master_private_address, master_password, productid, productid)
 
    autoscale_client = '''
 #!/usr/bin/python
@@ -424,18 +442,8 @@ cd boto
 mkdir -p /BIO
 mkdir -p /opt/sge
 
-/bin/mount -t nfs -o nolock %s:/BIO /BIO
-/bin/mount -t nfs -o nolock %s:/opt/sge /opt/sge
-
-cd /opt/sge
-./inst_sge -x -auto /opt/sge/%s.config
-
 echo "%s:/BIO	/BIO	nfs	timeo=14,intr" >> /etc/fstab
 echo "%s:/opt/sge	/opt/sge	nfs	timeo=14,intr" >> /etc/fstab
-
-#sge init & ssh key stop
-/sbin/chkconfig -add sgeexecd.bioinformatics_%s
-/sbin/chkconfig --del cloud-set-guest-sshkey.in
 
 #sending message via AWS SNS
 echo "[Credentials]" > /root/.boto
@@ -457,9 +465,19 @@ subj="AWS Message Services - Slave Node"
 res=sns.publish(mytopic_arn,msg,subj)
 EOF
 
+#sge init & ssh key stop
+/sbin/chkconfig -add sgeexecd.bioinformatics_%s
+/sbin/chkconfig --del cloud-set-guest-sshkey.in
+
+/bin/mount -t nfs -o nolock %s:/BIO /BIO
+/bin/mount -t nfs -o nolock %s:/opt/sge /opt/sge
+
+cd /opt/sge
+./inst_sge -x -auto /opt/sge/%s.config
+
 /bin/rm /etc/init.d/userdata
 
-   '''%(productid, productid, productid, master_private_address, master_private_address, productid, master_private_address, master_private_address, master_private_address)
+   '''%(productid, productid, productid, master_private_address, master_private_address, master_private_address, master_private_address, productid, productid)
 
    script_name = ("%s_slave.sh")%(productid)
    f = file(script_name,"w")
@@ -474,13 +492,13 @@ EOF
 def deploy_run(clusteruuid):
    result_volume = attach_volume(clusteruuid)
    result_hosts = build_hosts(clusteruuid)
-   result_master = build_script_master(clusteruuid)
+   result_master = build_script_master(clusteruuid, result_hosts['sge_admin_host_list'], result_hosts['master_private_address'], result_hosts['master_password'])
    result_slave = build_script_slave(clusteruuid)
    return result_volume
 
 def deploy_run_autoscale(clusteruuid):
+   result_hosts = build_hosts(clusteruuid)
    result_slave = build_script_slave(clusteruuid)
-   result_hosts = build_script_hosts(clusteruuid)
    return result_slave
 
 def attach_volume(clusteruuid):
