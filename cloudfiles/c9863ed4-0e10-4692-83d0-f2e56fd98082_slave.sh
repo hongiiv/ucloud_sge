@@ -16,8 +16,8 @@ echo "export SGE_ROOT="/opt/sge"" >> /root/.bashrc
 echo "export SGE_CELL="default"" >> /root/.bashrc
 echo "export DRMAA_LIBRARY_PATH=/opt/sge/lib/linux-x64/libdrmaa.so.1.0" >> /root/.bashrc
 
-wget ftp://172.27.121.128/450a5914-cf17-4d04-a38a-aec7cbb14303.hosts -O /tmp/450a5914-cf17-4d04-a38a-aec7cbb14303.hosts
-/bin/cat /tmp/450a5914-cf17-4d04-a38a-aec7cbb14303.hosts >> /etc/hosts
+wget ftp://172.27.121.128/c9863ed4-0e10-4692-83d0-f2e56fd98082.hosts -O /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082.hosts
+/bin/cat /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082.hosts >> /etc/hosts
 /usr/sbin/useradd sgeadmin
 
 #creating file system
@@ -49,23 +49,15 @@ cd boto
 mkdir -p /BIO
 mkdir -p /opt/sge
 
-/bin/mount -t nfs -o nolock 172.27.41.107:/BIO /BIO
-/bin/mount -t nfs -o nolock 172.27.41.107:/opt/sge /opt/sge
-
-cd /opt/sge
-./inst_sge -x -auto /opt/sge/450a5914-cf17-4d04-a38a-aec7cbb14303.config
-
-echo "450a5914-cf17-4d04-a38a-aec7cbb14303:/BIO	/BIO	nfs	timeo=14,intr" >> /etc/fstab
-echo "172.27.41.107:/opt/sge	/opt/sge	nfs	timeo=14,intr" >> /etc/fstab
-
-#sge init & ssh key stop
-/sbin/chkconfig -add sgeexecd.bioinformatics_172.27.41.107
-/sbin/chkconfig --del cloud-set-guest-sshkey.in
+echo "172.27.45.2:/BIO	/BIO	nfs	timeo=14,intr" >> /etc/fstab
+echo "172.27.45.2:/opt/sge	/opt/sge	nfs	timeo=14,intr" >> /etc/fstab
 
 #sending message via AWS SNS
 echo "[Credentials]" > /root/.boto
 echo "aws_access_key_id = AKIAJ5AR6DNAQZNL3FLQ" >> /root/.boto
 echo "aws_secret_access_key = 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" >> /root/.boto
+
+/usr/bin/wget ftp://172.27.121.128/sleeper.sh -O /BIO/sleeper.sh
 
 python <<EOF
 import os
@@ -79,6 +71,16 @@ msg = "Hi there. I am sending this message over boto. Bye my bf"
 subj="AWS Message Services - Slave Node"
 res=sns.publish(mytopic_arn,msg,subj)
 EOF
+
+#sge init & ssh key stop
+/sbin/chkconfig -add sgeexecd.bioinformatics_c9863ed4-0e10-4692-83d0-f2e56fd98082
+/sbin/chkconfig --del cloud-set-guest-sshkey.in
+
+/bin/mount -t nfs -o nolock 172.27.45.2:/BIO /BIO
+/bin/mount -t nfs -o nolock 172.27.45.2:/opt/sge /opt/sge
+
+cd /opt/sge
+./inst_sge -x -auto /opt/sge/c9863ed4-0e10-4692-83d0-f2e56fd98082.config
 
 /bin/rm /etc/init.d/userdata
 
