@@ -104,7 +104,7 @@ def read_queue():
 
 if __name__ == "__main__":
    wake_up_message_send()
-   worker_queue_name = "'%s_worker_'+get_hostname()" % sys.argv[1]
+   worker_queue_name = ('%s_worker_'+get_hostname()) % sys.argv[1]
    while True:
       thread.start_new_thread(read_queue,())
       time.sleep(10)

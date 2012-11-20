@@ -90,7 +90,7 @@ def read_queue():
          log.debug(worker_dict)
          #new hosts message send to worker nodes (worker nodes have their queue, worker's iid)
          for j in range(len(worker_dict)):
-	        worker_queue_name = "'%s_worker_'+ worker_dict[j+1][0]" % sys.argv[1] #worker_hostname
+	        worker_queue_name = ('%s_worker_'+ worker_dict[j+1][0]) % sys.argv[1] #worker_hostname
 	        log.debug('worker queue name: %s' % (worker_queue_name))
 
 	        new_message = Message()
