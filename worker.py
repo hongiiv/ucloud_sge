@@ -29,7 +29,7 @@ def get_hostname():
       return worker_hostname
    except IOError:
 	  pass
-	
+
 def get_rvm_hostname():
    ret_code = misc.run("grep 'option dhcp-server-identifier' /var/lib/dhcp3/dhclient.eth0.leases | tail -1 | awk '{print $NF}' | tr '\;' ' ' | tr -d ' ' > /tmp/hostname")
    if ret_code:
@@ -81,17 +81,20 @@ def read_queue():
    if message is not None:
       #handle_message
       get_message = message.get_body()
-      log.debug("Get Message: %s" % (get_message))
+      msg = get_message.split('|')[1]
+      log.debug("Get Message: %s" % (msg))
 
-      if get_message.startswith("SLAVE"):
-         #host_name = get_message.split('|')[1]
-         #host_ip = get_message.split('|')[2]
-         #log.debug("Got slave hostname/hostipaddress %s %s" %(host_name, host_ip))
+      if get_message.startswith("setup_hosts"):
          print get_message
-         misc.run("echo %s > /etc/hosts" % (get_message))
+         misc.run("echo %s > /etc/hosts" % (msg))
+      elif get_message.startswith("setup_cert"):
+         print get_message
+         misc.run("echo '%s' > ~/.ssh/authorized_keys" % (msg))
+         misc.run("chmod 700 ~/.ssh")
+         misc.run("chmod 644 ~/.ssh/authorized_keys")
 
-         request_queue.delete_message(message)
-         log.debug("Delete Message from SQS")
+      request_queue.delete_message(message)
+      log.debug("Delete Message from SQS")
    else:
       log.debug("SQS Server - Slave Message 0 :)")
       pass
