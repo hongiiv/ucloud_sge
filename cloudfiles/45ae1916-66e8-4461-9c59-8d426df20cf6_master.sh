@@ -26,18 +26,18 @@ echo "export SGE_ROOT="/opt/sge"" >> /root/.bashrc
 echo "export SGE_CELL="default"" >> /root/.bashrc
 echo "export DRMAA_LIBRARY_PATH=/opt/sge/lib/linux-x64/libdrmaa.so.1.0" >> /root/.bashrc
 
-/usr/bin/wget ftp://172.27.121.128/c9863ed4-0e10-4692-83d0-f2e56fd98082.config -O /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082.config
-/usr/bin/wget ftp://172.27.121.128/c9863ed4-0e10-4692-83d0-f2e56fd98082.hosts -O /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082.hosts
-/bin/cat /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082.hosts >> /etc/hosts
+/usr/bin/wget ftp://172.27.121.128/45ae1916-66e8-4461-9c59-8d426df20cf6.config -O /tmp/45ae1916-66e8-4461-9c59-8d426df20cf6.config
+/usr/bin/wget ftp://172.27.121.128/45ae1916-66e8-4461-9c59-8d426df20cf6.hosts -O /tmp/45ae1916-66e8-4461-9c59-8d426df20cf6.hosts
+/bin/cat /tmp/45ae1916-66e8-4461-9c59-8d426df20cf6.hosts >> /etc/hosts
 /usr/bin/wget ftp://172.27.121.128/sge.tar.gz -O /opt/sge.tar.gz
 cd /opt
 /bin/tar xvfz /opt/sge.tar.gz 
-/bin/cp /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082.config /opt/sge
+/bin/cp /tmp/45ae1916-66e8-4461-9c59-8d426df20cf6.config /opt/sge
 /usr/sbin/useradd sgeadmin
 /bin/chown -R sgeadmin:sgeadmin /opt/sge
 /bin/chown -R sgeadmin:sgeadmin /opt/sge/*
 cd /opt/sge
-./inst_sge -m -x -auto /opt/sge/c9863ed4-0e10-4692-83d0-f2e56fd98082.config
+./inst_sge -m -x -auto /opt/sge/45ae1916-66e8-4461-9c59-8d426df20cf6.config
 /bin/chown -R sgeadmin:sgeadmin /opt/sge
 /bin/chown -R sgeadmin:sgeadmin /opt/sge/*
 
@@ -82,8 +82,8 @@ echo "aws_access_key_id = AKIAJ5AR6DNAQZNL3FLQ" >> /root/.boto
 echo "aws_secret_access_key = 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" >> /root/.boto
 
 /usr/bin/wget ftp://172.27.121.128/sleeper.sh -O /BIO/sleeper.sh
-/usr/bin/wget ftp://172.27.121.128/c9863ed4-0e10-4692-83d0-f2e56fd98082_autoscale_client.py -O /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082_autoscale_client.py
-/usr/bin/python /tmp/c9863ed4-0e10-4692-83d0-f2e56fd98082_autoscale_client.py &
+/usr/bin/wget ftp://172.27.121.128/45ae1916-66e8-4461-9c59-8d426df20cf6_autoscale_client.py -O /tmp/45ae1916-66e8-4461-9c59-8d426df20cf6_autoscale_client.py
+/usr/bin/python /tmp/45ae1916-66e8-4461-9c59-8d426df20cf6_autoscale_client.py &
 
 python <<EOF
 import os
@@ -94,18 +94,22 @@ mytopics = topics["ListTopicsResponse"]["ListTopicsResult"]["Topics"]
 mytopic_arn = mytopics[0]["TopicArn"]
 subscriptions = sns.get_all_subscriptions_by_topic(mytopic_arn)
 msg = "Hi there. I am sending this message over boto. Bye my bf"
-msg = msg + " Master IP: 172.27.45.2 / PW: xH4nixtrj"
-subj="[c9863ed4-0e10-4692-83d0-f2e56fd98082] AWS Message Services - Master Node"
+msg = msg + " Master IP: 172.27.196.96 / PW: cU3mbhtiz"
+subj="[45ae1916-66e8-4461-9c59-8d426df20cf6] AWS Message Services - Master Node"
 res=sns.publish(mytopic_arn,msg,subj)
 EOF
 
 echo "deploy product from script" >> /tmp/deploy_result.txt
-echo "master ip: 172.27.45.2" >> /tmp/deploy_result.txt
-echo "master pw: xH4nixtrj" >> /tmp/deploy_result.txt
+echo "master ip: 172.27.196.96" >> /tmp/deploy_result.txt
+echo "master pw: cU3mbhtiz" >> /tmp/deploy_result.txt
 
 #sge init & ssh key stop
-/sbin/chkconfig -add sgeexecd.bioinformatics_c9863ed4-0e10-4692-83d0-f2e56fd98082
-/sbin/chkconfig -add sgemaster.bioinformatics_c9863ed4-0e10-4692-83d0-f2e56fd98082
+/sbin/chkconfig -add sgeexecd.bioinformatics_45ae1916-66e8-4461-9c59-8d426df20cf6
+/sbin/chkconfig -add sgemaster.bioinformatics_45ae1916-66e8-4461-9c59-8d426df20cf6
 /sbin/chkconfig --del cloud-set-guest-sshkey.in
 
 /bin/rm /etc/init.d/userdata
+
+#insert running master.py
+/usr/bin/wget ftp://172.27.121.128/master.py -O /tmp/master.py
+/usr/bin/python /tmp/master.py 45ae1916-66e8-4461-9c59-8d426df20cf6 &

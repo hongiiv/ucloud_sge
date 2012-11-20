@@ -12,7 +12,7 @@ import boto
 from boto.sqs.message import Message
 
 AUTOSCALE_QUEUE = 'autoscale_queue'
-cluster_uuid = 'c9863ed4-0e10-4692-83d0-f2e56fd98082'
+cluster_uuid = '45ae1916-66e8-4461-9c59-8d426df20cf6'
 
 log = logging.getLogger('bioinformatics')
 log.setLevel(logging.DEBUG)
