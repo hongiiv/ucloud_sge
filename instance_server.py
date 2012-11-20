@@ -167,14 +167,8 @@ while True:
    else:
       time.sleep(5)
 
-while True:
-   command_external = os.system("/usr/bin/wget ftp://%s/%s_hosts -O /tmp/%s_hosts")
-   if os.path.isfile("/tmp/%s_hosts") and os.path.getsize("tmp/%s_hosts") > 0:
-      command_external2 = os.system("/bin/cat /tmp/%s.hosts >> /etc/hosts")
-   time.sleep(5)
-
 EOF
-'''%(deploy_server_ip, message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], deploy_server_ip, message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'])
+'''%(deploy_server_ip, message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'])
 
    slave_userdata='''#!/bin/bash
 python <<EOF
@@ -190,14 +184,8 @@ while True:
    else:
       time.sleep(5)
 
-while True:
-   command_external = os.system("/usr/bin/wget ftp://%s/%s_hosts -O /tmp/%s_hosts")
-   if os.path.isfile("/tmp/%s_hosts") and os.path.getsize("tmp/%s_hosts") > 0:
-      command_external2 = os.system("/bin/cat /tmp/%s.hosts >> /etc/hosts")
-   time.sleep(5)
-
 EOF
-'''%(deploy_server_ip, message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], deploy_server_ip, message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'])
+'''%(deploy_server_ip, message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'], message_data['clusteruuid'])
 
 
    #master / slave userdata

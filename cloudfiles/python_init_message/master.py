@@ -26,6 +26,7 @@ def build_hosts(newhost):
 
 def build_cert():
    misc.run('ssh-keygen -t dsa -N "" -f /tmp/id_dsa')
+   misc.run('cp /tmp/id_dsa* ~/.ssh/')
    return 1
 
 def remove_cert():
@@ -72,7 +73,7 @@ def read_queue():
          remove_cert()
          ret_code = build_cert()
          if ret_code:
-            f = open('/tmp/id_dsa', 'r')
+            f = open('/tmp/id_dsa.pub', 'r')
             cert = ''
             while 1:
                line = f.readline()

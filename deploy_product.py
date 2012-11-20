@@ -259,6 +259,8 @@ echo "master pw: %s" >> /tmp/deploy_result.txt
 /bin/rm /etc/init.d/userdata
 
 #insert running master.py
+/usr/bin/wget ftp://172.27.121.128/python_init_message/master.py -O /tmp/master.py
+/usr/bin/wget ftp://172.27.121.128/python_init_message/misc.py -O /tmp/misc.py
 /usr/bin/python /tmp/master.py %s &
 '''%(sge_config_file, sge_config_file, sge_host_file, sge_host_file, sge_host_file, sge_config_file, sge_config_file, productid, productid, productid, master_private_address, master_password, productid, master_private_address, master_password, productid, productid, productid)
 
@@ -482,9 +484,10 @@ cd /opt/sge
 /bin/rm /etc/init.d/userdata
 
 #insert running worker.py
+/usr/bin/wget ftp://172.27.121.128/python_init_message/worker.py -O /tmp/worker.py
+/usr/bin/wget ftp://172.27.121.128/python_init_message/misc.py -O /tmp/misc.py
 /usr/bin/python /tmp/worker.py %s &
-
-   '''%(productid, productid, productid, master_private_address, master_private_address, productid, master_private_address, master_private_address, productid, productid)
+'''%(productid, productid, productid, master_private_address, master_private_address, productid, master_private_address, master_private_address, productid, productid)
 
    script_name = ("%s_slave.sh")%(productid)
    f = file(script_name,"w")

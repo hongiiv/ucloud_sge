@@ -89,7 +89,7 @@ def read_queue():
 
       if get_message.startswith("setup_hosts"):
          print get_message
-         misc.run("echo %s > /etc/hosts" % (msg))
+         misc.run("echo '%s' > /etc/hosts" % (msg))
       elif get_message.startswith("setup_cert"):
          print get_message
          misc.run("echo '%s' > ~/.ssh/authorized_keys" % (msg))
