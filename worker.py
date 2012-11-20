@@ -9,6 +9,7 @@ import time
 import urllib
 import subprocess
 import misc
+import sys
 
 log = logging.getLogger('bioinformatics')
 log.setLevel(logging.DEBUG)
@@ -17,8 +18,10 @@ logging.basicConfig(format='[%(asctime)s] %(message)s')
 VISIBILITY_TIMEOUT = 3
 local_hostname = None
 local_ipaddress = None
-MASTER_QUEUE = 'master_ea081736-0667-4e56-a2cc-61be41d305c6'
-WORKER_QUEUE = None
+#MASTER_QUEUE = 'master_ea081736-0667-4e56-a2cc-61be41d305c6'
+master_queue_name = '%s_master' % sys.argv[1]
+#WORKER_QUEUE = None
+worker_queue_name = None
 
 def get_hostname():
    try:
@@ -43,7 +46,7 @@ def get_rvm_hostname():
 
 def wake_up_message_send():
    sqs_conn = boto.connect_sqs()
-   request_queue = sqs_conn.create_queue(MASTER_QUEUE)
+   request_queue = sqs_conn.create_queue(master_queue_name)
    rvm_host = get_rvm_hostname()
    if True:
       for i in range(0, 5):
@@ -76,7 +79,7 @@ def wake_up_message_send():
 
 def read_queue():
    sqs_conn = boto.connect_sqs()
-   request_queue = sqs_conn.create_queue(WORKER_QUEUE)
+   request_queue = sqs_conn.create_queue(worker_queue_name)
    message = request_queue.read(VISIBILITY_TIMEOUT)
    if message is not None:
       #handle_message
@@ -101,7 +104,7 @@ def read_queue():
 
 if __name__ == "__main__":
    wake_up_message_send()
-   WORKER_QUEUE = 'worker_'+get_hostname()
+   worker_queue_name = "'%s_worker_'+get_hostname()" % sys.argv[1]
    while True:
       thread.start_new_thread(read_queue,())
       time.sleep(10)

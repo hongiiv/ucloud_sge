@@ -7,6 +7,7 @@ from boto.sqs.message import Message
 import logging
 import time
 import misc
+import sys
 
 log = logging.getLogger('bioinformatics')
 log.setLevel(logging.DEBUG)
@@ -14,6 +15,7 @@ logging.basicConfig(format='[%(asctime)s] %(message)s')
 VISIBILITY_TIMEOUT = 3 
 worker_dict = {}
 master_dict = {'host':['master_hostname','master_hostipaddress','clustername']}
+master_queue_name = "%s_master" % (sys.argv[1])
 
 sqs_conn = boto.connect_sqs()
 
@@ -32,7 +34,7 @@ def remove_cert():
    
 def read_queue():
    #request_queue = sqs_conn.create_queue(master_dict['host'][2])
-   request_queue = sqs_conn.create_queue('master_ea081736-0667-4e56-a2cc-61be41d305c6')
+   request_queue = sqs_conn.create_queue(master_queue_name)
    message = request_queue.read(VISIBILITY_TIMEOUT)
    if message is not None:
       #handle_message
@@ -88,7 +90,7 @@ def read_queue():
          log.debug(worker_dict)
          #new hosts message send to worker nodes (worker nodes have their queue, worker's iid)
          for j in range(len(worker_dict)):
-	        worker_queue_name = 'worker_'+ worker_dict[j+1][0] #worker_hostname
+	        worker_queue_name = "'%s_worker_'+ worker_dict[j+1][0]" % sys.argv[1] #worker_hostname
 	        log.debug('worker queue name: %s' % (worker_queue_name))
 
 	        new_message = Message()

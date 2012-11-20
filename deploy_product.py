@@ -156,6 +156,16 @@ echo "export LANG=\"en_US.UTF-8\"" >> /root/.bashrc
 echo "export LANGUAGE=\"en_US:en\"" >> /root/.bashrc
 echo "export LC_ALL=\"en_US.UTF-8\"" >> /root/.bashrc
 
+apt-get update -y
+apt-get install mdadm -y
+apt-get install git -y
+apt-get install unzip -y
+apt-get install mercurial -y
+apt-get install csh -y
+apt-get install chkconfig -y
+#apt-get install postgresql -y
+apt-get install nfs-kernel-server nfs-common portmap -y
+
 export SGE_ROOT="/opt/sge"
 export SGE_CELL="default"
 export PATH=$PATH:/opt/sge/bin/linux-x64/
@@ -178,16 +188,6 @@ cd /opt/sge
 ./inst_sge -m -x -auto /opt/sge/%s
 /bin/chown -R sgeadmin:sgeadmin /opt/sge
 /bin/chown -R sgeadmin:sgeadmin /opt/sge/*
-
-apt-get update -y
-apt-get install mdadm -y
-apt-get install git -y
-apt-get install unzip -y
-apt-get install mercurial -y
-apt-get install csh -y
-apt-get install chkconfig -y
-#apt-get install postgresql -y
-apt-get install nfs-kernel-server nfs-common portmap -y
 
 cd /root
 /usr/bin/git clone https://github.com/boto/boto
@@ -215,14 +215,14 @@ echo "/opt/sge *(rw,no_root_squash,no_all_squash,async,no_subtree_check)" >> /et
 /etc/init.d/nfs-kernel-server restart
 
 #install galaxy
-cd /BIO
-/usr/bin/hg clone https://bitbucket.org/galaxy/galaxy-central
-cd /BIO/galaxy-central
-wget ftp://172.27.121.128/universe_wsgi.ini -O /BIO/galaxy-central/universe_wsgi.ini
-wget ftp://172.27.121.128/galaxy -O /etc/init.d/galaxy
-/bin/chmod 755 /etc/init.d/galaxy
-/sbin/chkconfig -add galaxy
-/etc/init.d/galaxy start
+#cd /BIO
+#/usr/bin/hg clone https://bitbucket.org/galaxy/galaxy-central
+#cd /BIO/galaxy-central
+#wget ftp://172.27.121.128/universe_wsgi.ini -O /BIO/galaxy-central/universe_wsgi.ini
+#wget ftp://172.27.121.128/galaxy -O /etc/init.d/galaxy
+#/bin/chmod 755 /etc/init.d/galaxy
+#/sbin/chkconfig -add galaxy
+#/etc/init.d/galaxy start
 
 #sending message via AWS SNS
 echo "[Credentials]" > /root/.boto
@@ -257,7 +257,10 @@ echo "master pw: %s" >> /tmp/deploy_result.txt
 /sbin/chkconfig --del cloud-set-guest-sshkey.in
 
 /bin/rm /etc/init.d/userdata
-'''%(sge_config_file, sge_config_file, sge_host_file, sge_host_file, sge_host_file, sge_config_file, sge_config_file, productid, productid, productid, master_private_address, master_password, productid, master_private_address, master_password, productid, productid)
+
+#insert running master.py
+/usr/bin/python /tmp/master.py %s &
+'''%(sge_config_file, sge_config_file, sge_host_file, sge_host_file, sge_host_file, sge_config_file, sge_config_file, productid, productid, productid, master_private_address, master_password, productid, master_private_address, master_password, productid, productid, productid)
 
    autoscale_client = '''
 #!/usr/bin/python
@@ -331,6 +334,7 @@ def main():
             percent = i/12
             sys.stdout.write("\\r%%d%%%%" %%percent)
             sys.stdout.flush()
+         break
       else:
          log.debug("not yet: %%s %%d"%%(delta.seconds, queue_size))
 
@@ -477,7 +481,10 @@ cd /opt/sge
 
 /bin/rm /etc/init.d/userdata
 
-   '''%(productid, productid, productid, master_private_address, master_private_address, master_private_address, master_private_address, productid, productid)
+#insert running worker.py
+/usr/bin/python /tmp/worker.py %s &
+
+   '''%(productid, productid, productid, master_private_address, master_private_address, productid, master_private_address, master_private_address, productid, productid)
 
    script_name = ("%s_slave.sh")%(productid)
    f = file(script_name,"w")
@@ -499,7 +506,7 @@ def deploy_run(clusteruuid):
 def deploy_run_autoscale(clusteruuid):
    result_hosts = build_hosts(clusteruuid)
    result_slave = build_script_slave(clusteruuid)
-   return result_slave
+   return "1"
 
 def attach_volume(clusteruuid):
    #find master node from instance_table 
